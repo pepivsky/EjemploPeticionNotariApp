@@ -7,13 +7,19 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import com.pepivsky.ejemplopeticionnotariapp.adapter.TramiteAdapter
 import com.pepivsky.ejemplopeticionnotariapp.response.Respuesta
 import com.pepivsky.ejemplopeticionnotariapp.response.emailcode.VerifyEmailResponse
+import com.pepivsky.ejemplopeticionnotariapp.response.gettramites.GetTramitesResponse
+import com.pepivsky.ejemplopeticionnotariapp.response.gettramites.GetTramitesResponseItem
 import com.pepivsky.ejemplopeticionnotariapp.response.info.Document
 import com.pepivsky.ejemplopeticionnotariapp.response.info.InfoResponse
 import com.pepivsky.ejemplopeticionnotariapp.response.signin.SendCodeEmailResponse
 import com.pepivsky.ejemplopeticionnotariapp.response.tramites.TramitesResponse
+import com.pepivsky.ejemplopeticionnotariapp.response.tramites.TramitesResponseItem
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
@@ -21,6 +27,11 @@ import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var adapter: TramiteAdapter
+    lateinit var recyclerTramites: RecyclerView
+
+
     companion object {
         fun getRetrofit(): Retrofit {
             val baseURL = "http://3.219.19.170:3000/"
@@ -89,8 +100,8 @@ class MainActivity : AppCompatActivity() {
             }
 
         })*/
-        val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MjA0MTc1NjksImV4cCI6MTYyMDQyMTE2OX0.UNiT2bCy-6TugLAyjpv477M2WJyq7nXLEyVSa3NlgvE"
-        getTramites(token)
+        /*val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MjA0MTc1NjksImV4cCI6MTYyMDQyMTE2OX0.UNiT2bCy-6TugLAyjpv477M2WJyq7nXLEyVSa3NlgvE"
+        getTramites(token)*/
 
             //verificar email
 
@@ -117,6 +128,61 @@ class MainActivity : AppCompatActivity() {
         //objeto retrofit
         val retrofit = builder.build()*/
 
+        /*val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MjA4NTYzMjcsImV4cCI6MTYyMDg1OTkyN30.XK8dMNdQ9vVFBZaa-M19hp8QwpWg-HWWW698DXO02Vk"
+        val id = "201"
+        val email = "pepivsky@gmail.com"
+        val typeSend = "1"
+
+        sendCodeEmailLogin(token, id, email, typeSend)*/
+
+        val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MjA5MjM3MjgsImV4cCI6MTYyMDkyNzMyOH0.cU8MimHG-m9XV8_Ste9qiMmHOK_8SRPXZfPcerGPxcE"
+
+        getPrincipalTramites(token)
+
+    }
+
+    private fun initRecyclerView(response: List<GetTramitesResponseItem>) {
+        recyclerTramites = findViewById(R.id.rvTramites)
+        val newList: List<GetTramitesResponseItem> = response
+
+        newList.forEach {
+            when (it.transact) {
+                "Declaraciones" -> it.image = R.drawable.declaraciones
+                "Registro Civil" -> it.image = R.drawable.registro
+                "Escrituración" -> it.image = R.drawable.escrituras
+                "Autenticación" -> it.image = R.drawable.autenticaciones
+                "Conciliación" -> it.image = R.drawable.conciliaciones
+                "Remates" -> it.image = R.drawable.remates
+
+            }
+        }
+
+
+        adapter = TramiteAdapter(newList)
+        recyclerTramites.layoutManager = GridLayoutManager(this,3)
+        recyclerTramites.adapter = adapter
+    }
+
+    private fun getPrincipalTramites(token: String) {
+        val retrofit = getRetrofit()
+        val call = retrofit.create(NotariService::class.java)
+
+        call.getTramites(token).enqueue(object : Callback<List<GetTramitesResponseItem>> {
+            override fun onResponse(
+                call: Call<List<GetTramitesResponseItem>>,
+                response: Response<List<GetTramitesResponseItem>>
+            ) {
+                if (response.isSuccessful) {
+                    Log.i("tramites", "response:${response.body()}")
+                    response.body()?.let { initRecyclerView(it) }
+                }
+            }
+
+            override fun onFailure(call: Call<List<GetTramitesResponseItem>>, t: Throwable) {
+                Log.i("bad", "Algo salio mal $call")
+            }
+
+        })
 
     }
 
@@ -129,11 +195,16 @@ class MainActivity : AppCompatActivity() {
                 call: Call<SendCodeEmailResponse>,
                 response: Response<SendCodeEmailResponse>
             ) {
+                if (response.isSuccessful) {
+                    Log.i("enviarCodigo", "response:${response.body()}")
+                } else {
+                    Log.i("mal! : ", response.message())
+                }
 
             }
 
             override fun onFailure(call: Call<SendCodeEmailResponse>, t: Throwable) {
-
+                Log.i("bad", "Algo salio mal $call")
             }
 
         })
@@ -187,7 +258,7 @@ class MainActivity : AppCompatActivity() {
             })
     }
 
-    private fun setupSpinner(list: List<Document?>) {
+    /*private fun setupSpinner(list: List<Document?>) {
         Log.i("lista" , "$list")
         val listLocal = listOf("pepe", "problemas")
         val spinner: Spinner = findViewById(R.id.spinner)
@@ -220,9 +291,9 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
-    }
+    }*/
 
-    fun getTypes() {
+   /* fun getTypes() {
         val typesDocList = mutableListOf<Document?>()
         val retrofit = getRetrofit()
         val call = retrofit.create(NotariService::class.java)
@@ -251,7 +322,7 @@ class MainActivity : AppCompatActivity() {
 
         })
 
-    }
+    }*/
 
     /*fun createUser() {
         //haciendo la peticion

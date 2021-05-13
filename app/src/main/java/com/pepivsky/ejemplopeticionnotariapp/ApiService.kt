@@ -2,9 +2,12 @@ package com.pepivsky.ejemplopeticionnotariapp
 
 import com.pepivsky.ejemplopeticionnotariapp.response.Respuesta
 import com.pepivsky.ejemplopeticionnotariapp.response.emailcode.VerifyEmailResponse
+import com.pepivsky.ejemplopeticionnotariapp.response.gettramites.GetTramitesResponse
+import com.pepivsky.ejemplopeticionnotariapp.response.gettramites.GetTramitesResponseItem
 import com.pepivsky.ejemplopeticionnotariapp.response.info.InfoResponse
 import com.pepivsky.ejemplopeticionnotariapp.response.signin.SendCodeEmailResponse
 import com.pepivsky.ejemplopeticionnotariapp.response.tramites.TramitesResponse
+import com.pepivsky.ejemplopeticionnotariapp.response.tramites.TramitesResponseItem
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -12,30 +15,7 @@ import retrofit2.http.*
 
 
 interface ApiService {
-/*
-   // @Multipart
-    @POST("users/signup")
-    //@FormUrlEncoded
-    fun registerUser(
-        @Part() personType: RequestBody,
-        @Part("firstname") firstName: RequestBody,
-        @Part("middlename") middleName: RequestBody,
-        @Part("lastname") lasName: RequestBody,
-        @Part("secondlastname") secondLastName: RequestBody,
-        @Part("type_doc") typeDoc: RequestBody,
-        @Part("num\"person_type\"_doc") numDoc: RequestBody,
-        @Part("birthday") birthDay: RequestBody,
-        @Part("nit") nit: RequestBody,
-        @Part("company_name") companyName: RequestBody,
-        @Part("phone") phone: RequestBody,
-        @Part("dpto") dpto: RequestBody,
-        @Part("city") city: RequestBody,
-        @Part("address") address: RequestBody,
-        @Part("email") email: RequestBody,
-        @Part("confirm_email") ConfirmEmail: RequestBody,
-        @Part("password") password: RequestBody,
-        @Part("confirm_password") confirmPassword: RequestBody
-    ) Call<Respuesta>*/
+
 }
 
 interface NotariService {
@@ -114,5 +94,11 @@ interface NotariService {
         @Field("email") email: String,
         @Field("type_send") typeSend: String
     ):Call<SendCodeEmailResponse>
+
+
+    // getTramites
+    @GET("members/transact/new")
+    fun getTramites(@Header("Authorization") token: String): Call<List<GetTramitesResponseItem>>
+
 
 }
